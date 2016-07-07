@@ -205,6 +205,12 @@ class ToscaCompute(HotResource):
            attribute == 'public_address':
                 attr['get_attr'] = [self.name, 'networks', 'private', 0]
 
+                # To update when scalable part will be translated
+                # to a ResourceGroup
+                scalable_cap = self.nodetemplate.get_capability('scalable')
+                if scalable_cap and scalable_cap.definition.type == 'tosca.capabilities.indigo.Scalable':
+                    attr = [attr]
+
         return attr
 
     def _log_compute_msg(self, prop, what):
