@@ -46,7 +46,7 @@ class HotResource(object):
         # special case for HOT softwareconfig
         if type == 'OS::Heat::SoftwareConfig':
             config = self.properties.get('config')
-            if config:
+            if isinstance(config, dict):
                 implementation_artifact = config.get('get_file')
                 if implementation_artifact:
                     filename, file_extension = os.path.splitext(
@@ -174,10 +174,13 @@ class HotResource(object):
         # in operations_deploy_sequence
         # TODO(anyone): find some better way to encode this implicit sequence
         group = {}
+        op_index_min = None
         op_index_max = -1
         for op, hot in deploy_lookup.items():
             # position to determine potential preceding nodes
             op_index = operations_deploy_sequence.index(op.name)
+            if op_index_min is None or op_index < op_index_min:
+                op_index_min = op_index
             if op_index > op_index_max:
                 op_index_max = op_index
             for preceding_op_name in \
@@ -189,6 +192,10 @@ class HotResource(object):
                     hot.depends_on_nodes.append(preceding_hot)
                     group[preceding_hot] = hot
                     break
+        # save this dependency chain in the set of HOT resources
+        self.group_dependencies.update(group)
+        for hot in hot_resources:
+            hot.group_dependencies.update(group)
 
         if op_index_max >= 0:
             last_deploy = deploy_lookup.get(operations.get(
@@ -196,10 +203,46 @@ class HotResource(object):
         else:
             last_deploy = None
 
-        # save this dependency chain in the set of HOT resources
-        self.group_dependencies.update(group)
-        for hot in hot_resources:
-            hot.group_dependencies.update(group)
+        artifacts = self.get_all_artifacts(self.nodetemplate)
+        install_roles_script = ''
+        for artifact_name, artifact in six.iteritems(artifacts):
+            if artifact.get('type', None) == \
+                    'tosca.artifacts.AnsibleGalaxy.role':
+                role = artifact.get('file', None)
+                if role:
+                    install_roles_script += 'ansible-galaxy install ' \
+                                            + role + '\n'
+
+        if install_roles_script:
+            # remove trailing \n
+            install_roles_script = install_roles_script[:-1]
+            # add shebang and | to use literal scalar type (for multiline)
+            install_roles_script = '|\n#!/bin/bash\n' + install_roles_script
+
+            config_name = node_name + '_install_roles_config'
+            deploy_name = node_name + '_install_roles_deploy'
+            hot_resources.append(
+                HotResource(self.nodetemplate,
+                            config_name,
+                            'OS::Heat::SoftwareConfig',
+                            {'config': install_roles_script}))
+            sd_config = {'config': {'get_resource': config_name},
+                         'server': {'get_resource':
+                                    hosting_on_server}}
+            deploy_resource = \
+                HotResource(self.nodetemplate,
+                            deploy_name,
+                            'OS::Heat::SoftwareDeployment',
+                            sd_config)
+            hot_resources.append(deploy_resource)
+
+            # add a dependency to this ansible roles deploy to
+            # the first "classic" deploy generated for this node
+            if op_index_min:
+                first_deploy = deploy_lookup.get(operations.get(
+                    operations_deploy_sequence[op_index_min]))
+                first_deploy.depends_on.append(deploy_resource)
+                first_deploy.depends_on_nodes.append(deploy_resource)
 
         return hot_resources, deploy_lookup, last_deploy
 
@@ -348,15 +391,34 @@ class HotResource(object):
         return tosca_props
 
     @staticmethod
+    def get_all_artifacts(nodetemplate):
+        # workaround bug in the parser
+        base_type = HotResource.get_base_type_str(nodetemplate.type_definition)
+        if base_type == "tosca.policies.Placement":
+            artifacts = {}
+        else:
+            artifacts = nodetemplate.type_definition.get_value('artifacts',
+                                                               parent=True)
+        if not artifacts:
+            artifacts = {}
+        tpl_artifacts = nodetemplate.entity_tpl.get('artifacts')
+        if tpl_artifacts:
+            artifacts.update(tpl_artifacts)
+
+        return artifacts
+
+    @staticmethod
     def get_all_operations(node):
         operations = {}
         for operation in node.interfaces:
             operations[operation.name] = operation
 
+        # workaround bug in the parser
+        base_type = HotResource.get_base_type_str(node.type_definition)
+        if base_type == "tosca.policies.Placement":
+            return operations
+
         node_type = node.type_definition
-        if isinstance(node_type, str) or \
-            node_type.type == "tosca.policies.Placement":
-                return operations
 
         while True:
             type_operations = HotResource._get_interface_operations_from_type(
