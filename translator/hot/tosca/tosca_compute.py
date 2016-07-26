@@ -69,7 +69,6 @@ class ToscaCompute(HotResource):
         endpoint = self.nodetemplate.get_capability('endpoint')
         if endpoint:
             network_name = endpoint.get_property_value('network_name')
-            print(network_name)
             if network_name:
                 if network_name == 'PUBLIC':
                     network = networks.get_public_network()
