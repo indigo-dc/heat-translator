@@ -150,15 +150,20 @@ class TranslatorShell(object):
                 print(msg)
             else:
                 if keystone_client_available:
-                    keystone_auth = (
-                        loading.load_auth_from_argparse_arguments(args)
-                    )
-                    keystone_session = (
-                        loading.load_session_from_argparse_arguments(
-                            args,
-                            auth=keystone_auth
+                    try:
+                        keystone_auth = (
+                            loading.load_auth_from_argparse_arguments(args)
                         )
-                    )
+                        keystone_session = (
+                            loading.load_session_from_argparse_arguments(
+                                args,
+                                auth=keystone_auth
+                            )
+                        )
+                    except:
+                        keystone_auth = None
+                        keystone_session = None
+
                     images.SESSION = keystone_session
                     flavors.SESSION = keystone_session
                     networks.SESSION = keystone_session
@@ -169,6 +174,9 @@ class TranslatorShell(object):
                     if not keystone_client_available or not heat_client_available:
                         raise RuntimeError(_('Could not find Heat or Keystone'
                                              'client to deploy, aborting '))
+                    if not keystone_session:
+                        raise RuntimeError(_('Impossible to login with Keystone to deploy on Heat, '
+                                             'please check your credentials'))
 
                     self.deploy_on_heat(keystone_session, keystone_auth,
                                         hot, parsed_params)
