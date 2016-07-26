@@ -16,6 +16,7 @@ import logging
 from toscaparser.utils.gettextutils import _
 from translator.common import flavors as nova_flavors
 from translator.common import images as glance_images
+from translator.common import networks
 import translator.common.utils
 from translator.hot.syntax.hot_resource import HotResource
 
@@ -56,11 +57,32 @@ class ToscaCompute(HotResource):
         self.properties = self.translate_compute_flavor_and_image(
             self.nodetemplate.get_capability('host'),
             self.nodetemplate.get_capability('os'))
+        self._translate_network()
         self.properties['user_data_format'] = 'SOFTWARE_CONFIG'
         tosca_props = self.get_tosca_props()
         for key, value in tosca_props.items():
             if key in self.ALLOWED_NOVA_SERVER_PROPS:
                 self.properties[key] = value
+
+    def _translate_network(self):
+        network = None
+        endpoint = self.nodetemplate.get_capability('endpoint')
+        if endpoint:
+            network_name = endpoint.get_property_value('network_name')
+            print(network_name)
+            if network_name:
+                if network_name == 'PUBLIC':
+                    network = networks.get_public_network()
+                elif network_name == 'PRIVATE':
+                    network = networks.get_private_network()
+                else:
+                    network = network_name
+
+        if not network:
+            network = networks.get_private_network()
+
+        self.properties['networks'] = {}
+        self.properties['networks']['network'] = network
 
     # To be reorganized later based on new development in Glance and Graffiti
     def translate_compute_flavor_and_image(self,
@@ -204,15 +226,18 @@ class ToscaCompute(HotResource):
         # multiple private/public IP addresses.
         log.debug(_('Converting TOSCA attribute for a nodetemplate to a HOT \
                   attriute.'))
-        if attribute == 'private_address' or \
-           attribute == 'public_address':
-                attr['get_attr'] = [self.name, 'networks', 'private', 0]
+        if attribute == 'private_address':
+            attr['get_attr'] = [self.name, 'networks', networks.get_private_network(), 0]
 
-                # To update when scalable part will be translated
-                # to a ResourceGroup
-                scalable_cap = self.nodetemplate.get_capability('scalable')
-                if scalable_cap and scalable_cap.definition.type == 'tosca.capabilities.indigo.Scalable':
-                    attr = [attr]
+        if attribute == 'public_address':
+            attr['get_attr'] = [self.name, 'networks', networks.get_public_network(), 0]
+
+        if attr:
+            # To update when scalable part will be translated
+            # to a ResourceGroup
+            scalable_cap = self.nodetemplate.get_capability('scalable')
+            if scalable_cap and scalable_cap.definition.type == 'tosca.capabilities.indigo.Scalable':
+                attr = [attr]
 
         return attr
 

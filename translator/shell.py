@@ -41,6 +41,7 @@ from toscaparser.utils.gettextutils import _
 from toscaparser.utils.urlutils import UrlUtils
 from translator.common import flavors
 from translator.common import images
+from translator.common import networks
 from translator.conf.config import ConfigProvider
 from translator.hot.tosca_translator import TOSCATranslator
 
@@ -160,6 +161,7 @@ class TranslatorShell(object):
                     )
                     images.SESSION = keystone_session
                     flavors.SESSION = keystone_session
+                    networks.SESSION = keystone_session
 
                 hot = self._translate(template_type, template_file,
                                       parsed_params, a_file, deploy)
