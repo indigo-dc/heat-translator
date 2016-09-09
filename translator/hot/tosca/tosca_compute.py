@@ -77,11 +77,8 @@ class ToscaCompute(HotResource):
                 else:
                     network = network_name
 
-        if not network:
-            network = networks.get_private_network()
-
-        self.properties['networks'] = {}
-        self.properties['networks']['network'] = network
+        if network:
+            self.properties['networks'] = [{'network': network}]
 
     # To be reorganized later based on new development in Glance and Graffiti
     def translate_compute_flavor_and_image(self,
