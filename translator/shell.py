@@ -64,7 +64,7 @@ other required arguments.
 conf_file = ConfigProvider.get_translator_logging_file()
 try:
     logging.config.fileConfig(conf_file)
-except:
+except Exception:
     pass
 log = logging.getLogger("heat-translator")
 
@@ -160,7 +160,7 @@ class TranslatorShell(object):
                                 auth=keystone_auth
                             )
                         )
-                    except:
+                    except Exception:
                         keystone_auth = None
                         keystone_session = None
 
@@ -171,11 +171,13 @@ class TranslatorShell(object):
                 hot = self._translate(template_type, template_file,
                                       parsed_params, a_file, deploy)
                 if hot and deploy:
-                    if not keystone_client_available or not heat_client_available:
+                    if not keystone_client_available \
+                            or not heat_client_available:
                         raise RuntimeError(_('Could not find Heat or Keystone'
                                              'client to deploy, aborting '))
                     if not keystone_session:
-                        raise RuntimeError(_('Impossible to login with Keystone to deploy on Heat, '
+                        raise RuntimeError(_('Impossible to login with '
+                                             'Keystone to deploy on Heat, '
                                              'please check your credentials'))
 
                     self.deploy_on_heat(keystone_session, keystone_auth,

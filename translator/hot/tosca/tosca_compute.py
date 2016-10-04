@@ -223,16 +223,19 @@ class ToscaCompute(HotResource):
         log.debug(_('Converting TOSCA attribute for a nodetemplate to a HOT \
                   attriute.'))
         if attribute == 'private_address':
-            attr['get_attr'] = [self.name, 'networks', networks.get_private_network(), 0]
+            attr['get_attr'] = [self.name, 'networks',
+                                networks.get_private_network(), 0]
 
         if attribute == 'public_address':
-            attr['get_attr'] = [self.name, 'networks', networks.get_public_network(), 0]
+            attr['get_attr'] = [self.name, 'networks',
+                                networks.get_public_network(), 0]
 
         if attr:
             # To update when scalable part will be translated
             # to a ResourceGroup
             scalable_cap = self.nodetemplate.get_capability('scalable')
-            if scalable_cap and scalable_cap.definition.type == 'tosca.capabilities.indigo.Scalable':
+            if scalable_cap and scalable_cap.definition.type == \
+                    'tosca.capabilities.indigo.Scalable':
                 attr = [attr]
 
         return attr
