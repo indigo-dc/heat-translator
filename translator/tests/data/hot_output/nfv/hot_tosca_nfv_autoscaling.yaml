@@ -19,7 +19,7 @@ resources:
       min_size: 1
       desired_capacity: 2
       resource:
-        type: SP1_res.yaml
+        type: hot_tosca_nfv_autoscaling_SP1_group.yaml
       max_size: 3
       cooldown: 120
   SP1_scale_in:

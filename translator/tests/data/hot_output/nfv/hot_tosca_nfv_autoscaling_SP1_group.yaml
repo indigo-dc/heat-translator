@@ -1,5 +1,5 @@
 heat_template_version: 2013-05-23
-description: Tacker Scaling template
+parameters: {}
 resources:
   VDU1:
     type: OS::Nova::Server
@@ -33,5 +33,4 @@ resources:
       networks:
       - port: { get_resource: CP2 }
       config_drive: false
-  VL1:
-    type: OS::Neutron::Net
+outputs: {}

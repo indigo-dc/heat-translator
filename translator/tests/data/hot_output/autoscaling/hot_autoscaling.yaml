@@ -12,7 +12,7 @@ resources:
       desired_capacity: 3
       cooldown: 60
       resource:
-        type: asg_res.yaml
+        type: hot_autoscaling_asg_group.yaml
       max_size: 10
   asg_scale_out:
     type: OS::Heat::ScalingPolicy

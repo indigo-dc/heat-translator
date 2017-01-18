@@ -29,7 +29,7 @@ resources:
       min_size: 2
       desired_capacity: 3
       resource:
-        type: asg_res.yaml
+        type: hot_monitoring_scaling_asg_group.yaml
       max_size: 10
       cooldown: 60
   asg_scale_in:
