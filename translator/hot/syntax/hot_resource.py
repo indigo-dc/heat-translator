@@ -592,7 +592,7 @@ class HotResource(object):
 
         substack_template.resources = dependent_resources
 
-        # add standardized TOSCA attributes for addresses of a Compute node
+        # add standardized TOSCA attributes for address of a Compute node
         # TODO(mvelten) Correctly handle networks here
         # substack_template.outputs.append(
         #     HotOutput('public_address',
