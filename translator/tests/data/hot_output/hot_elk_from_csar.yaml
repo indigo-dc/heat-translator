@@ -51,9 +51,7 @@ resources:
         mongodb_ip:
           get_attr:
           - mongo_server
-          - networks
-          - private
-          - 0
+          - first_address
       server:
         get_resource: app_server
     depends_on:
@@ -109,9 +107,7 @@ resources:
         mongodb_ip:
           get_attr:
           - mongo_server
-          - networks
-          - private
-          - 0
+          - first_address
       server:
         get_resource: mongo_server
     depends_on:
@@ -185,9 +181,7 @@ resources:
         logstash_ip:
           get_attr:
           - logstash_server
-          - networks
-          - private
-          - 0
+          - first_address
       server:
         get_resource: app_server
     depends_on:
@@ -278,9 +272,7 @@ resources:
         logstash_ip:
           get_attr:
           - logstash_server
-          - networks
-          - private
-          - 0
+          - first_address
       server:
         get_resource: app_server
     depends_on:
@@ -354,9 +346,7 @@ resources:
         elasticsearch_ip:
           get_attr:
           - elasticsearch_server
-          - networks
-          - private
-          - 0
+          - first_address
       server:
         get_resource: logstash_server
     depends_on:
@@ -429,15 +419,11 @@ resources:
         elasticsearch_ip:
           get_attr:
           - elasticsearch_server
-          - networks
-          - private
-          - 0
+          - first_address
         kibana_ip:
           get_attr:
           - kibana_server
-          - networks
-          - private
-          - 0
+          - first_address
       server:
         get_resource: kibana_server
     depends_on:
@@ -509,43 +495,33 @@ outputs:
     value:
       get_attr:
       - app_server
-      - networks
-      - private
-      - 0
+      - first_address
 
   mongodb_url:
     description: URL for the mongodb server.
     value:
       get_attr:
       - mongo_server
-      - networks
-      - private
-      - 0
+      - first_address
 
   logstash_url:
     description: URL for the logstash server.
     value:
       get_attr:
       - logstash_server
-      - networks
-      - private
-      - 0
+      - first_address
 
   elasticsearch_url:
     description: URL for the elasticsearch server.
     value:
       get_attr:
       - elasticsearch_server
-      - networks
-      - private
-      - 0
+      - first_address
 
   kibana_url:
     description: URL for the kibana server.
     value:
       get_attr:
       - kibana_server
-      - networks
-      - private
-      - 0
+      - first_address
 

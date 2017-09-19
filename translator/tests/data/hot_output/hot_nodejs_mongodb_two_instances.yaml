@@ -45,9 +45,7 @@ resources:
         mongodb_ip:
           get_attr:
           - mongo_server
-          - networks
-          - private
-          - 0
+          - first_address
       server:
         get_resource: mongo_server
     depends_on:
@@ -119,9 +117,7 @@ resources:
         mongodb_ip:
           get_attr:
           - mongo_server
-          - networks
-          - private
-          - 0
+          - first_address
       server:
         get_resource: app_server
     depends_on:
@@ -172,14 +168,10 @@ outputs:
     value:
       get_attr:
       - mongo_server
-      - networks
-      - private
-      - 0
+      - first_address
   nodejs_url:
     description: URL for the nodejs server, http://<IP>:3000
     value:
       get_attr:
       - app_server
-      - networks
-      - private
-      - 0
+      - first_address
