@@ -20,6 +20,7 @@ from toscaparser.elements.interfaces import InterfacesDef
 from toscaparser.functions import GetInput
 from toscaparser.nodetemplate import NodeTemplate
 from toscaparser.utils.gettextutils import _
+from translator.hot.syntax.hot_output import HotOutput
 from translator.hot.syntax.hot_parameter import HotParameter
 from translator.hot.syntax.hot_template import HotTemplate
 
@@ -146,7 +147,7 @@ class HotResource(object):
         sw_deployment_resouce = HOTSoftwareDeploymentResources(hosting_server)
         server_key = sw_deployment_resouce.server_key
         servers = sw_deployment_resouce.servers
-        sw_deploy_res = sw_deployment_resouce.software_deployment
+        sw_deploy_res = sw_deployment_resouce.type
 
         # hosting_server is None if requirements is None
         hosting_on_server = hosting_server if hosting_server else None
@@ -253,7 +254,7 @@ class HotResource(object):
         sw_deployment_resouce = \
             HOTSoftwareDeploymentResources(hosting_on_server)
         server_key = sw_deployment_resouce.server_key
-        sw_deploy_res = sw_deployment_resouce.software_deployment
+        sw_deploy_res = sw_deployment_resouce.type
         for artifact_name, artifact in artifacts.items():
             artifact_type = artifact.get('type', '').lower()
             if artifact_type == 'tosca.artifacts.ansiblegalaxy.role':
@@ -301,7 +302,7 @@ class HotResource(object):
         sw_deployment_resouce = HOTSoftwareDeploymentResources(hosting_server)
         server_key = sw_deployment_resouce.server_key
         servers = sw_deployment_resouce.servers
-        sw_deploy_res = sw_deployment_resouce.software_deployment
+        sw_deploy_res = sw_deployment_resouce.type
 
         deploy_name = tosca_source.name + '_' + tosca_target.name + \
             '_connect_deploy'
@@ -592,20 +593,10 @@ class HotResource(object):
 
         substack_template.resources = dependent_resources
 
-        # add standardized TOSCA attributes for address of a Compute node
-        # TODO(mvelten) Correctly handle networks here
-        # substack_template.outputs.append(
-        #     HotOutput('public_address',
-        #               {'get_attr':
-        #                    [server.name, 'networks', 'private', 0]}))
-        # substack_template.outputs.append(
-        #     HotOutput('private_address',
-        #               {'get_attr':
-        #                    [server.name, 'networks', 'private', 0]}))
-
-        # substack_template.outputs.append(
-        #     HotOutput('first_address',
-        #               {'get_attr': [server.name, 'first_address']}))
+        # add standardized attribute for address of a Compute node
+        substack_template.outputs.append(
+            HotOutput('first_address',
+                      {'get_attr': [server.name, 'first_address']}))
 
         return substack_template, substack_parameters, external_dependencies
 
@@ -702,8 +693,7 @@ class HOTSoftwareDeploymentResources(object):
     HOT_SW_DEPLOYMENT_GROUP_RESOURCE = 'OS::Heat::SoftwareDeploymentGroup'
 
     def __init__(self, hosting_server=None):
-        self.software_deployment = self.HOT_SW_DEPLOYMENT_RESOURCE
-        self.software_deployment_group = self.HOT_SW_DEPLOYMENT_GROUP_RESOURCE
+        self.type = self.HOT_SW_DEPLOYMENT_RESOURCE
         self.server_key = 'server'
         self.hosting_server = hosting_server
         self.servers = {}
@@ -714,5 +704,5 @@ class HOTSoftwareDeploymentResources(object):
             else:
                 for server in self.hosting_server:
                     self.servers[server] = {'get_resource': server}
-                self.software_deployment = self.software_deployment_group
+                self.type = self.HOT_SW_DEPLOYMENT_GROUP_RESOURCE
                 self.server_key = 'servers'
