@@ -11,7 +11,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import logging
+
+from toscaparser.utils.gettextutils import _
 from translator.hot.syntax.hot_resource import HotResource
+
+
+log = logging.getLogger('heat-translator')
+
 
 # Name used to dynamically load appropriate map class.
 TARGET_CLASS_NAME = 'ToscaSoftwareComponent'
@@ -29,3 +36,20 @@ class ToscaSoftwareComponent(HotResource):
 
     def handle_properties(self):
         pass
+
+    def get_hot_attribute(self, attribute, args):
+        attr = {}
+        # Convert from a TOSCA attribute for a nodetemplate to a HOT
+        # attribute for the matching resource.  Unless there is additional
+        # runtime support, this should be a one to one mapping.
+
+        # Note: We treat private and public IP  addresses equally, but
+        # this will change in the future when TOSCA starts to support
+        # multiple private/public IP addresses.
+        log.debug(_('Converting TOSCA attribute for a nodetemplate to a HOT \
+                  attribute.'))
+        if attribute == 'private_address' or \
+           attribute == 'public_address':
+                attr['get_attr'] = [self.name, 'networks', 'private', 0]
+
+        return attr
