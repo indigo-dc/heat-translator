@@ -96,7 +96,7 @@ pipeline {
                 
                 stage("Testing TOSCA template: lifewatch-algaebloom.yaml") {
                     steps {
-                        sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/lifewatch-algaebloom.yaml'
+                        sh "~/.local/bin/heat-translator --parameters 'mem=1 GB' --template-file /tmp/tosca-templates/lifewatch-algaebloom.yaml"
                     }
                 }
                 
