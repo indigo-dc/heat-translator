@@ -76,11 +76,11 @@ pipeline {
                     }
                 }
                 
-                stage("Testing TOSCA template: galaxy_elixirIT_fastconfig.yaml") {
-                    steps {
-                        sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/galaxy_elixirIT_fastconfig.yaml'
-                    }
-                }
+                //stage("Testing TOSCA template: galaxy_elixirIT_fastconfig.yaml") {
+                //    steps {
+                //        sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/galaxy_elixirIT_fastconfig.yaml'
+                //    }
+                //}
                 
                 stage("Testing TOSCA template: kepler-batch.yaml") {
                     steps {
