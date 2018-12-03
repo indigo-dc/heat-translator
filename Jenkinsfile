@@ -76,27 +76,9 @@ pipeline {
                     }
                 }
                 
-                //stage("Testing TOSCA template: galaxy_elixirIT_fastconfig.yaml") {
-                //    steps {
-                //        sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/galaxy_elixirIT_fastconfig.yaml'
-                //    }
-                //}
-                
-                stage("Testing TOSCA template: kepler-batch.yaml") {
-                    steps {
-                        sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/kepler-batch.yaml'
-                    }
-                }
-                
                 stage("Testing TOSCA template: kepler.yaml") {
                     steps {
                         sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/kepler.yaml'
-                    }
-                }
-                
-                stage("Testing TOSCA template: lifewatch-algaebloom.yaml") {
-                    steps {
-                        sh "~/.local/bin/heat-translator --parameters 'mem=1 GB' --template-file /tmp/tosca-templates/lifewatch-algaebloom.yaml"
                     }
                 }
                 
@@ -109,6 +91,36 @@ pipeline {
                 stage("Testing TOSCA template: powerfit.yaml") {
                     steps {
                         sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/powerfit.yaml'
+                    }
+                }
+                
+                stage("Testing TOSCA template: dodas/Basic.yaml") {
+                    steps {
+                        sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/dodas/Basic.yaml'
+                    }
+                }
+                
+                stage("Testing TOSCA template: dodas/CMS-HTCondor-TSystem.yaml") {
+                    steps {
+                        sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/dodas/CMS-HTCondor-TSystem.yaml'
+                    }
+                }
+                
+                stage("Testing TOSCA template: dodas/CMS-HTCondor-and-onedata.yaml") {
+                    steps {
+                        sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/dodas/CMS-HTCondor-and-onedata.yaml'
+                    }
+                }
+                
+                stage("Testing TOSCA template: dodas/CMS-HTCondor-dodas.yaml") {
+                    steps {
+                        sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/dodas/CMS-HTCondor-dodas.yaml'
+                    }
+                }
+                
+                stage("Testing TOSCA template: dodas/htcondor_cluster.yaml") {
+                    steps {
+                        sh '~/.local/bin/heat-translator --template-file /tmp/tosca-templates/dodas/htcondor_cluster.yaml'
                     }
                 }
             }
