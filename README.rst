@@ -22,6 +22,10 @@ Orchestration Specification for Cloud Applications (TOSCA) templates to
 HOT. However, the tool is designed to be easily extended to use with any
 format other than TOSCA.
 
+Acknowledgement
+----------------
+This work is co-funded by the `EOSC-hub project <http://eosc-hub.eu/>`_  (Horizon 2020) under Grant number 777536. 
+
 Architecture
 ------------
 
